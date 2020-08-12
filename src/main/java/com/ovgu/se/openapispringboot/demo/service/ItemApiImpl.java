@@ -1,0 +1,71 @@
+package com.ovgu.se.openapispringboot.demo.service;
+
+import com.ovgu.se.openapispringboot.demo.data.ItemRepository;
+import com.ovgu.se.openapispringboot.demo.api.ItemApiDelegate;
+import com.ovgu.se.openapispringboot.demo.model.Item;
+import com.ovgu.se.openapispringboot.demo.model.ItemDbo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+public class ItemApiImpl implements ItemApiDelegate {
+
+    private ItemRepository itemRepository;
+    private final Logger log = LoggerFactory.getLogger(ItemApiImpl.class);
+
+    @Autowired
+    public ItemApiImpl(ItemRepository itemRepository) {
+        this.itemRepository = itemRepository;
+    }
+
+    @Override
+    public ResponseEntity<Item> createItem(Item item) {
+        ItemDbo savedItem = new ItemDbo(item);
+        savedItem = itemRepository.save(savedItem);
+        log.info("Item posted");
+        return ResponseEntity.ok(savedItem.toItem());
+    }
+
+    @Override
+    public ResponseEntity<Void> deleteItem(Integer id) {
+        ItemDbo itemDbo = itemRepository.findById(id).orElseThrow();
+        itemRepository.delete(itemDbo);
+        log.info("Item deleted");
+        return ResponseEntity.ok().build();
+    }
+
+    @Override
+    public ResponseEntity<Item> getItem(Integer id) {
+        log.info("Item get");
+        ItemDbo itemDbo = itemRepository.findById(id).orElseThrow();
+        return ResponseEntity.ok(itemDbo.toItem());
+    }
+
+    @Override
+    public ResponseEntity<List<Item>> getItems(String name, String manufacturer, String listedStarting, String listedEnding, String description, BigDecimal priceGe, BigDecimal priceLe) {
+        log.info("Items get");
+        List<Item> itemsList = new ArrayList<>();
+        ItemDbo tempItem;
+        for(int i = 0; i < itemRepository.count(); i++) {
+            log.info("item");
+            tempItem = itemRepository.findById(i).orElseThrow();
+            itemsList.add(tempItem.toItem());
+        }
+        return ResponseEntity.ok(itemsList);
+    }
+
+    @Override
+    public ResponseEntity<Item> updateItem(Integer id, Item item) {
+        ItemDbo itemDbo = itemRepository.findById(id).orElseThrow();
+        itemDbo = itemRepository.save(new ItemDbo(item));
+        log.info("Item updated");
+        return ResponseEntity.ok(itemDbo.toItem());
+    }
+}

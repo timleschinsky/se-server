@@ -1,0 +1,70 @@
+plugins {
+    id 'java'
+    id "org.openapi.generator" version "4.3.1"
+    id 'org.springframework.boot' version '2.3.2.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+}
+
+group = 'com.ovgu.se.openapispringboot.demo'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.0.1.RELEASE'
+    implementation 'org.springframework.boot:spring-boot-starter-web:2.0.1.RELEASE'
+    runtimeOnly 'com.h2database:h2'
+    implementation "io.springfox:springfox-swagger2:2.8.0"
+    implementation "io.springfox:springfox-swagger-ui:2.8.0"
+    implementation "org.openapitools:jackson-databind-nullable:0.1.0"
+    implementation "javax.validation:validation-api"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+}
+
+openApiValidate {
+    inputSpec = "https://ovgu.jwet.de/openapi.json"
+}
+
+openApiGenerate {
+    generatorName = "spring"
+    inputSpec = "openapi.json"
+    outputDir = "$buildDir/generated"
+    configOptions = [
+            basePackage            : "com.ovgu.se.openapispringboot.demo",
+            apiPackage             : "com.ovgu.se.openapispringboot.demo.api",
+            configPackage          : "com.ovgu.se.openapispringboot.demo.config",
+            modelPackage           : "com.ovgu.se.openapispringboot.demo.model",
+            hideGenerationTimestamp: "true",
+            dateLibrary            : "java8",
+            delegatePattern        : "true"
+    ]
+    systemProperties = [
+            modelTests     : "false",
+            modelDocs      : "false",
+            apiTests       : "false",
+            apiDocs        : "false"
+    ]
+}
+
+tasks.openApiGenerate.dependsOn tasks.openApiValidate
+
+tasks.withType(JavaCompile) {
+    compileTask -> compileTask.dependsOn tasks.openApiGenerate
+}
+
+sourceSets.main.java.srcDirs += "$buildDir/generated/src/main/java"
