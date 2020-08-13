@@ -52,14 +52,14 @@ public class ItemApiImpl implements ItemApiDelegate {
     @Override
     public ResponseEntity<List<Item>> getItems(String name, String manufacturer, String listedStarting, String listedEnding, String description, BigDecimal priceGe, BigDecimal priceLe) {
         log.info("Items get");
-        List<Item> itemsList = new ArrayList<>();
-        ItemDbo tempItem;
-        for(int i = 1; i < itemRepository.count()+1; i++) {
-            log.info("item");
-            tempItem = itemRepository.findById(i).orElseThrow();
-            itemsList.add(tempItem.toItem());
+        List<ItemDbo> itemDboList = new ArrayList<>();
+        List<Item> itemList = new ArrayList<>();
+        
+        itemDboList = itemRepository.findAll();
+        for (ItemDbo item : itemDboList) {
+            itemList.add(item.toItem());
         }
-        return ResponseEntity.ok(itemsList);
+        return ResponseEntity.ok(itemList);
     }
 
     @Override
