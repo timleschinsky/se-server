@@ -35,6 +35,7 @@ public class ItemApiImpl implements ItemApiDelegate {
 
     @Override
     public ResponseEntity<Void> deleteItem(Integer id) {
+        log.info("ID: ", id);
         ItemDbo itemDbo = itemRepository.findById(id).orElseThrow();
         itemRepository.delete(itemDbo);
         log.info("Item deleted");
@@ -53,7 +54,7 @@ public class ItemApiImpl implements ItemApiDelegate {
         log.info("Items get");
         List<Item> itemsList = new ArrayList<>();
         ItemDbo tempItem;
-        for(int i = 0; i < itemRepository.count(); i++) {
+        for(int i = 1; i < itemRepository.count()+1; i++) {
             log.info("item");
             tempItem = itemRepository.findById(i).orElseThrow();
             itemsList.add(tempItem.toItem());
@@ -63,9 +64,12 @@ public class ItemApiImpl implements ItemApiDelegate {
 
     @Override
     public ResponseEntity<Item> updateItem(Integer id, Item item) {
-        ItemDbo itemDbo = itemRepository.findById(id).orElseThrow();
-        itemDbo = itemRepository.save(new ItemDbo(item));
         log.info("Item updated");
-        return ResponseEntity.ok(itemDbo.toItem());
+        ItemDbo itemDbo = itemRepository.findById(id).orElseThrow();
+        ItemDbo saveItem = new ItemDbo(item);
+        saveItem = itemRepository.save(saveItem);
+        saveItem.setId(id);
+        //itemDbo = new ItemDbo(item);
+        return ResponseEntity.ok(saveItem.toItem());
     }
 }

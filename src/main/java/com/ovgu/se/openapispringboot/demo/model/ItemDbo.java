@@ -50,4 +50,12 @@ public class ItemDbo {
         listedSince = LocalDate.now();
         manufacturer = item.getManufacturer();
     }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Integer getId() {
+        return id;
+    }
 }
