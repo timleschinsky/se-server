@@ -13,11 +13,12 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ItemApiImpl implements ItemApiDelegate {
 
-    private ItemRepository itemRepository;
+    private final ItemRepository itemRepository;
     private final Logger log = LoggerFactory.getLogger(ItemApiImpl.class);
 
     @Autowired
@@ -35,7 +36,7 @@ public class ItemApiImpl implements ItemApiDelegate {
 
     @Override
     public ResponseEntity<Void> deleteItem(Integer id) {
-        log.info("ID: ", id);
+        log.info("ID: {} will be deleted", id);
         ItemDbo itemDbo = itemRepository.findById(id).orElseThrow();
         itemRepository.delete(itemDbo);
         log.info("Item deleted");
@@ -44,32 +45,32 @@ public class ItemApiImpl implements ItemApiDelegate {
 
     @Override
     public ResponseEntity<Item> getItem(Integer id) {
-        log.info("Item get");
+        log.info("Item {} get", id);
         ItemDbo itemDbo = itemRepository.findById(id).orElseThrow();
         return ResponseEntity.ok(itemDbo.toItem());
     }
 
     @Override
-    public ResponseEntity<List<Item>> getItems(String name, String manufacturer, String listedStarting, String listedEnding, String description, BigDecimal priceGe, BigDecimal priceLe) {
+    public ResponseEntity<List<Item>> getItems(String name, String manufacturer, String description, Double priceGe, Double priceLe) {
         log.info("Items get");
-        List<ItemDbo> itemDboList = new ArrayList<>();
-        List<Item> itemList = new ArrayList<>();
-        
-        itemDboList = itemRepository.findAll();
-        for (ItemDbo item : itemDboList) {
-            itemList.add(item.toItem());
-        }
+        List<Item> itemList = itemRepository
+                .findByNameAndManufacturerAndDescriptionAndPriceIsBetween(name, manufacturer, description, priceGe, priceLe)
+                .parallelStream()
+                .map(ItemDbo::toItem).collect(Collectors.toUnmodifiableList());
         return ResponseEntity.ok(itemList);
     }
 
     @Override
     public ResponseEntity<Item> updateItem(Integer id, Item item) {
-        log.info("Item updated");
+        log.info("Item {} updating", id);
         ItemDbo itemDbo = itemRepository.findById(id).orElseThrow();
-        ItemDbo saveItem = new ItemDbo(item);
-        saveItem = itemRepository.save(saveItem);
-        saveItem.setId(id);
-        //itemDbo = new ItemDbo(item);
-        return ResponseEntity.ok(saveItem.toItem());
+        itemDbo.setDescription(item.getDescription());
+        itemDbo.setManufacturer(item.getManufacturer());
+        itemDbo.setName(item.getName());
+        itemDbo.setTax(item.getTax());
+        itemDbo.setPrice(item.getPrice());
+        itemDbo = itemRepository.save(itemDbo);
+        log.info("Item updated");
+        return ResponseEntity.ok(itemDbo.toItem());
     }
 }

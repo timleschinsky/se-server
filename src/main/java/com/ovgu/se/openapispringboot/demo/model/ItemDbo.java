@@ -39,7 +39,8 @@ public class ItemDbo {
                 .price(price)
                 .tax(tax)
                 .listedSince(listedSince)
-                .manufacturer(manufacturer);
+                .manufacturer(manufacturer)
+                .description(description);
     }
 
     public ItemDbo(Item item) {
