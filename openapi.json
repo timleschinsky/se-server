@@ -8,6 +8,16 @@
       "url": "https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png"
     }
   },
+  "servers": [
+    {
+      "url": "https://ovgu.jwet.de/api/spring",
+      "description": "The Spring (contract-first) version of this SE API demo"
+    },
+    {
+      "url": "https://ovgu.jwet.de/api/fastapi",
+      "description": "The FastAPI (code-first) version of this SE API demo"
+    }
+  ],
   "paths": {
     "/item/": {
       "get": {

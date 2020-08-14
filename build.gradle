@@ -36,10 +36,6 @@ dependencies {
     }
 }
 
-openApiValidate {
-    inputSpec = "https://ovgu.jwet.de/openapi.json"
-}
-
 openApiGenerate {
     generatorName = "spring"
     inputSpec = "openapi.json"
@@ -60,8 +56,6 @@ openApiGenerate {
             apiDocs        : "false"
     ]
 }
-
-tasks.openApiGenerate.dependsOn tasks.openApiValidate
 
 tasks.withType(JavaCompile) {
     compileTask -> compileTask.dependsOn tasks.openApiGenerate
