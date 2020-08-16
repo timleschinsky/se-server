@@ -3,6 +3,7 @@ package com.ovgu.se.openapispringboot.demo.model;
 import io.swagger.models.auth.In;
 import lombok.*;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -20,6 +21,7 @@ public class ItemDbo {
     @GeneratedValue
     private Integer id;
 
+    @Column(unique = true)
     private String name;
 
     private String description;
